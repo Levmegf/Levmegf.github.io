@@ -1,0 +1,56 @@
+# ==========================================================
+#  Decap CMS 后台配置（浏览器里写文章用）
+#  访问地址：https://levmegf.github.io/admin/
+#
+#  GitHub 登录需要一个认证服务，二选一，详见 README「网页后台」一节：
+#   方案 A（最省事）：Decap Turbo 托管认证 —— 删掉下面的 base_url 行
+#   方案 B（完全免费）：自建 Cloudflare Worker OAuth 代理 —— 填 base_url
+# ==========================================================
+
+backend:
+  name: github
+  repo: Levmegf/Levmegf.github.io
+  branch: master
+  # base_url: https://你的-oauth-代理.workers.dev
+
+# 中文界面
+locale: zh_Hans
+
+# 让中文标题也能生成正常文件名（否则会被清空）
+slug:
+  encoding: unicode
+  clean_accents: false
+
+# 图片上传位置：对应 source/img/uploads/，访问路径为 /img/uploads/
+media_folder: source/img/uploads
+public_folder: /img/uploads
+
+collections:
+  - name: posts
+    label: 文章
+    label_singular: 文章
+    folder: source/_posts
+    create: true
+    preview_path: '{{year}}/{{month}}/{{day}}/{{title}}/'
+    sortable_fields: [date, title]
+    fields:
+      - { label: 标题, name: title, widget: string }
+      - {
+          label: 发布日期,
+          name: date,
+          widget: datetime,
+          date_format: 'YYYY-MM-DD',
+          time_format: 'HH:mm:ss',
+          format: 'YYYY-MM-DD HH:mm:ss',
+        }
+      - { label: 标签, name: tags, widget: list, required: false, default: [] }
+      - {
+          label: 分类,
+          name: categories,
+          widget: list,
+          required: false,
+          default: [],
+        }
+      - { label: 摘要, name: description, widget: text, required: false }
+      - { label: 封面图, name: cover, widget: image, required: false }
+      - { label: 正文, name: body, widget: markdown }
