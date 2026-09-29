@@ -11,7 +11,7 @@
 backend:
   name: turbo-github
   # ↓↓↓ 必填：turbo.decapcms.org → 打开站点 → Overview 页复制 Site ID
-  turbo_site_id: REPLACE_WITH_TURBO_SITE_ID
+  turbo_site_id: 0e6b98dc-319d-492e-b386-c5ed8b5563b4
   # 不写则用 Turbo 站点里设置的默认分支；显式写死 master 更稳妥
   branch: master
   # 注意：Turbo 后端会忽略 repo（以 Turbo 站点里绑定的仓库为准），故此处不写
