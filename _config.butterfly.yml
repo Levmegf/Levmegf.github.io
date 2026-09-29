@@ -10,7 +10,8 @@ nav:
   logo:
   display_title: true
   display_post_title: true
-  fixed: false
+  # 吸顶导航：滚动后出现毛玻璃导航条（样式见 source/css/custom.css）
+  fixed: true
 
 menu:
   首页: / || fas fa-home
@@ -29,12 +30,24 @@ avatar:
   img:
   effect: false
 
-# ---------- 首页顶部大图 ----------
-# 把图片放到 source/img/banner.jpg，然后填 /img/banner.jpg
-index_img:
-archives_img:
-category_img:
-tag_img:
+# ---------- 首页顶部 ----------
+# 无配图，改用深色渐变（样式见 source/css/custom.css）
+index_site_info_top: 36%
+
+# 首页副标题（打字机效果）
+subtitle:
+  enable: true
+  effect: true
+  typed_option:
+    startDelay: 400
+    typeSpeed: 70
+    backSpeed: 32
+    backDelay: 2200
+    loop: true
+  source: false
+  sub:
+    - 做生活的高手
+    - 记录一些值得留下的瞬间
 
 # ---------- 社交图标 ----------
 social:
@@ -46,6 +59,38 @@ cover:
   aside_enable: true
   archives_enable: true
   default_cover:
+
+# ---------- 首页文章简介 ----------
+# method: 1 只显示 description / 2 优先 description 否则自动摘要 / 3 自动摘要
+# 纯文字排版下摘要太长会显得堆砌，收到 140 字
+index_post_content:
+  method: 2
+  length: 140
+
+# ---------- 侧边栏 ----------
+aside:
+  card_author:
+    description: 写一点生活，写一点自己。
+    # 主题默认按钮指向占位地址 github.com/xxxxxx，这里关掉；
+    # 下方社交图标已经指向真实 GitHub
+    button:
+      enable: false
+  card_announcement:
+    enable: true
+    content: 这里没有算法，只有一些慢下来的文字。
+  card_recent_post:
+    limit: 5
+  card_categories:
+    enable: false
+  card_tags:
+    enable: false
+  card_archives:
+    enable: true
+    type: monthly
+    format: YYYY年MM月
+    limit: 8
+  card_webinfo:
+    enable: true
 
 # ---------- 本地搜索 ----------
 # 依赖 hexo-generator-searchdb（已在 package.json 里）
@@ -136,4 +181,5 @@ inject:
   head:
     - '<link rel="stylesheet" href="/css/custom.css">'
   bottom:
-    # - '<script src="/js/xxx.js"></script>'
+    # 文章页顶部阅读进度条
+    - '<script src="/js/custom.js"></script>'
