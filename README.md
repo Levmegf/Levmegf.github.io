@@ -99,19 +99,39 @@ cover: /img/uploads/xxx.jpg   # 可选，文章封面
 
 ### 方式 2：网页后台 Decap CMS
 
-部署完成后访问 **https://levmegf.github.io/admin/**，用 GitHub 账号登录，
-即可像写公众号一样在线编辑、上传图片、点按钮发布。
+部署完成后访问 **https://levmegf.github.io/admin/**，登录后即可像写公众号一样
+在线编辑、上传图片、点按钮发布。
 
 后台配置文件在 `source/admin/config.yml`。
 
-> ⚠️ Decap 用 GitHub 登录必须有认证服务（GitHub 的硬性要求），二选一：
+> ⚠️ Decap 用 GitHub 登录必须有认证服务（GitHub 的硬性要求）。当前采用
+> **方案 A：Decap Turbo 托管认证**，配置已完成，还差一步——填 `turbo_site_id`。
 
-**方案 A：Decap Turbo 托管认证（最省事）**
-1. 到 https://decapcms.org/turbo/ 注册（Free 档：1 站点 1 席位，永久免费）
-2. 添加站点，仓库填 `Levmegf/Levmegf.github.io`
-3. 把 `source/admin/config.yml` 里的 `base_url` 那一行**删掉或注释**即可
+**方案 A：Decap Turbo 托管认证（当前采用）**
+
+1. 到 https://turbo.decapcms.org/signup 注册（Free 档：1 站点 1 席位，永久免费，不用信用卡）
+2. **先连 Git**：组织侧边栏 `Git connection` → 安装 Turbo GitHub App，
+   授权给 `Levmegf` 账号（可只勾 `Levmegf.github.io` 这一个仓库）
+3. **再建站点**：`Sites` → 新建，按下面填：
+
+   | 字段 | 填什么 |
+   | --- | --- |
+   | Site name | 随便，比如 `Levmegf Blog` |
+   | Git provider | `GitHub` |
+   | Repo | `Levmegf/Levmegf.github.io` |
+   | Branch | `master` |
+   | Config path | `source/admin/config.yml`（**仓库相对路径**，不是网址） |
+   | Admin interface URL(s) | `https://levmegf.github.io/admin/` |
+
+4. 建好后打开该站点 → **Overview** 页 → 复制 **Site ID**（一串 UUID）
+5. 把 `source/admin/config.yml` 里的 `REPLACE_WITH_TURBO_SITE_ID` 换成这串 ID，
+   提交推送，等 Actions 跑完即可登录
 
 **方案 B：自建 Cloudflare Worker OAuth 代理（完全免费，无第三方）**
+
+不想依赖 Turbo 时改用这条，把 `config.yml` 的 `backend` 换回 `name: github`
+并补上 `repo: Levmegf/Levmegf.github.io`：
+
 1. 在 GitHub 建一个 OAuth App：`Settings > Developer settings > OAuth Apps`
    - Homepage URL：`https://levmegf.github.io`
    - Authorization callback URL：`https://你的worker.workers.dev/callback`
@@ -120,8 +140,8 @@ cover: /img/uploads/xxx.jpg   # 可选，文章封面
 3. 把 Worker 地址填进 `config.yml` 的 `base_url`
 
 > 顺带一提：Decap 的配置文件与 [Sveltia CMS](https://github.com/sveltia/sveltia-cms)
-> 完全兼容，后者更轻、移动端体验更好。想换的话，把 `source/admin/index.html` 里的
-> CDN 地址换成 Sveltia 的即可。
+> 完全兼容，后者更轻、移动端体验更好，且认证走 Cloudflare Worker 即可，不需要 beta 版。
+> 想换的话，把 `source/admin/index.html` 里的 CDN 地址换成 Sveltia 的即可。
 
 ### 方式 3：手机发布
 

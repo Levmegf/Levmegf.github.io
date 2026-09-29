@@ -2,16 +2,19 @@
 #  Decap CMS 后台配置（浏览器里写文章用）
 #  访问地址：https://levmegf.github.io/admin/
 #
-#  GitHub 登录需要一个认证服务，二选一，详见 README「网页后台」一节：
-#   方案 A（最省事）：Decap Turbo 托管认证 —— 删掉下面的 base_url 行
-#   方案 B（完全免费）：自建 Cloudflare Worker OAuth 代理 —— 填 base_url
+#  认证方式：Decap Turbo 托管认证（不用自建 OAuth 服务）
+#  前置条件：先在 https://turbo.decapcms.org/ 建好组织 + 站点，
+#            再把下面的 turbo_site_id 换成站点 Overview 页里的 Site ID。
+#  Turbo 后端仍在 beta，所以 index.html 引的是 decap-cms@beta。
 # ==========================================================
 
 backend:
-  name: github
-  repo: Levmegf/Levmegf.github.io
+  name: turbo-github
+  # ↓↓↓ 必填：turbo.decapcms.org → 打开站点 → Overview 页复制 Site ID
+  turbo_site_id: REPLACE_WITH_TURBO_SITE_ID
+  # 不写则用 Turbo 站点里设置的默认分支；显式写死 master 更稳妥
   branch: master
-  # base_url: https://你的-oauth-代理.workers.dev
+  # 注意：Turbo 后端会忽略 repo（以 Turbo 站点里绑定的仓库为准），故此处不写
 
 # 中文界面
 locale: zh_Hans
