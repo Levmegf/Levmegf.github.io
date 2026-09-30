@@ -1,0 +1,18 @@
+---
+import { getCollection } from 'astro:content'
+import PostListItem from './PostListItem.astro'
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+)
+const recentPosts = posts.slice(0, 3)
+---
+
+<div class="px-4 md:px-16 flex flex-col gap-4 mt-16">
+  <h3 class="font-medium text-base">最新文章</h3>
+  {recentPosts.map((post) => <PostListItem post={post} />)}
+  <a
+    class="border flex justify-center items-center hover:no-underline hover:bg-gray-200 hover:border-gray-300 transition-colors ease-in-out bg-gray-100 w-full max-w-xs mx-auto mt-12 rounded-lg text-gray-700 text-xs h-8 font-medium border-gray-200 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300 hover:dark:bg-neutral-700/50 hover:dark:border-neutral-600 hover:dark:text-neutral-100"
+    href="/blog/">查看全部</a
+  >
+</div>

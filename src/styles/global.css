@@ -1,0 +1,129 @@
+html {
+  /* Reddit Mono 是主题的等宽字体；后面挂上中文回退，
+     否则中文缺字时会掉到浏览器默认字体，字形突变很扎眼 */
+  font-family: 'Reddit Mono', ui-monospace, SFMono-Regular, Menlo, monospace,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC',
+    sans-serif;
+  width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  @apply rounded-lg;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ==========================================================
+   正文排版
+   ========================================================== */
+.article-body {
+  line-height: 1.9;
+}
+
+.article-body > * + * {
+  margin-top: 1.1em;
+}
+
+.article-body h2,
+.article-body h3,
+.article-body h4,
+.article-body h5,
+.article-body h6 {
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.article-body h2 {
+  font-size: 1.4em;
+}
+
+.article-body h3 {
+  font-size: 1.18em;
+}
+
+.article-body h4 {
+  font-size: 1.05em;
+}
+
+.article-body ul,
+.article-body ol {
+  padding-left: 1.4em;
+}
+
+.article-body ul {
+  list-style: disc;
+}
+
+.article-body ol {
+  list-style: decimal;
+}
+
+.article-body li + li {
+  margin-top: 0.4em;
+}
+
+.article-body blockquote {
+  padding: 0.6em 1.1em;
+  border-left: 3px solid #a1a1aa;
+  color: #52525b;
+  background-color: #fafafa;
+}
+
+.dark .article-body blockquote {
+  border-left-color: #52525b;
+  color: #a1a1aa;
+  background-color: #262626;
+}
+
+.article-body pre {
+  padding: 1em;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+}
+
+.article-body code {
+  font-family: 'Reddit Mono', ui-monospace, monospace;
+  font-size: 90%;
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.article-body th,
+.article-body td {
+  padding: 0.5em 0.75em;
+  border: 1px solid #e5e5e5;
+}
+
+.dark .article-body th,
+.dark .article-body td {
+  border-color: #404040;
+}
+
+.article-body hr {
+  margin: 2.4em auto;
+  width: 40%;
+  border: 0;
+  border-top: 1px solid #e5e5e5;
+}
+
+.dark .article-body hr {
+  border-top-color: #404040;
+}
+
+.article-body img {
+  margin: 1.5em 0;
+}

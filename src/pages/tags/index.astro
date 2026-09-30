@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content'
+import BaseHead from '../../components/BaseHead.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import Icon from '../../components/Icon.astro'
+import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts'
+
+const posts = await getCollection('blog')
+
+const counts = new Map<string, number>()
+for (const post of posts) {
+  for (const tag of post.data.tags ?? []) {
+    counts.set(tag, (counts.get(tag) ?? 0) + 1)
+  }
+}
+const tags = [...counts.entries()].sort((a, b) => b[1] - a[1])
+---
+
+<!doctype html>
+<html lang="zh-CN" class="min-h-dvh">
+  <head>
+    <BaseHead title={`标签 · ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+  </head>
+  <body
+    class="w-full flex flex-col mx-auto max-w-screen-md min-h-dvh justify-between dark:bg-neutral-800 dark:text-neutral-300 transition-colors duration-300"
+  >
+    <div>
+      <Header />
+      <main class="w-full max-w-screen-md mx-auto my-4 px-4">
+        <h1 class="text-2xl font-bold mb-6">标签</h1>
+        <ul class="flex flex-wrap gap-3">
+          {
+            tags.map(([tag, count]) => (
+              <li>
+                <a
+                  href={`/tags/${tag}/`}
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 dark:border-neutral-700 text-sm hover:no-underline hover:border-gray-400 dark:hover:border-neutral-500 transition-colors"
+                >
+                  <Icon
+                    name="tag"
+                    class="w-3.5 h-3.5 text-gray-500 dark:text-neutral-400"
+                  />
+                  <span>#{tag}</span>
+                  <span class="text-xs text-gray-500 dark:text-neutral-400">
+                    {count}
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        {
+          tags.length === 0 && (
+            <p class="text-gray-500 dark:text-neutral-400">还没有标签。</p>
+          )
+        }
+      </main>
+    </div>
+    <Footer />
+  </body>
+</html>

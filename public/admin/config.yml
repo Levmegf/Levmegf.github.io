@@ -1,0 +1,68 @@
+# ==========================================================
+#  Decap CMS 后台配置（Astro 版）
+#  访问路径：https://levmegf.github.io/admin/
+#  登录方式沿用 Turbo 托管认证（方案 A）
+# ==========================================================
+
+backend:
+  name: turbo-github
+  # ↓↓↓ Turbo 站点 ID：turbo.decapcms.org → 打开站点 → Overview 页复制
+  turbo_site_id: 0e6b98dc-319d-492e-b386-c5ed8b5563b4
+  # 不写则用 Turbo 站点里设置的默认分支；显式写死 master 更稳妥
+  branch: master
+  # 注意：Turbo 后端会忽略 repo（以 Turbo 站点里绑定的仓库为准），故此处不写
+
+# 图片上传到 public/images/uploads，Astro 会把 public/ 原样拷进 dist/
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+collections:
+  - name: blog
+    label: 文章
+    label_singular: 文章
+    folder: src/content/blog
+    create: true
+    extension: md
+    format: frontmatter
+    # 关键：默认 slug 会把中文标题转成空文件名。
+    # encoding: unicode 让文件名保留中文，Astro 才能用它作为文章 slug。
+    slug:
+      encoding: unicode
+      clean_accents: false
+    fields:
+      - label: 标题
+        name: title
+        widget: string
+      - label: 简介
+        name: description
+        widget: text
+        hint: 会显示在首页与文章列表的摘要处
+      - label: 发布日期
+        name: pubDate
+        widget: datetime
+        date_format: 'YYYY-MM-DD'
+        time_format: 'HH:mm'
+      - label: 更新日期
+        name: updatedDate
+        widget: datetime
+        required: false
+        date_format: 'YYYY-MM-DD'
+        time_format: 'HH:mm'
+      - label: 分类
+        name: category
+        widget: string
+        required: false
+        hint: 单个分类，会出现在「分类」页
+      - label: 标签
+        name: tags
+        widget: list
+        required: false
+        default: []
+        hint: 多个标签，会出现在「标签」页
+      - label: 封面图
+        name: heroImage
+        widget: image
+        required: false
+      - label: 正文
+        name: body
+        widget: markdown

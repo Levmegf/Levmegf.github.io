@@ -1,0 +1,56 @@
+---
+import { getCollection } from 'astro:content'
+import BaseHead from '../../components/BaseHead.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import PostListItem from '../../components/PostListItem.astro'
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog')
+  const names = [
+    ...new Set(
+      posts.map((post) => post.data.category).filter((c): c is string => Boolean(c))
+    ),
+  ]
+  return names.map((name) => ({
+    params: { slug: name },
+    props: {
+      category: name,
+      posts: posts
+        .filter((post) => post.data.category === name)
+        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+    },
+  }))
+}
+
+const { category, posts } = Astro.props
+---
+
+<!doctype html>
+<html lang="zh-CN" class="min-h-dvh">
+  <head>
+    <BaseHead
+      title={`分类：${category}`}
+      description={`归类在「${category}」下的全部文章。`}
+    />
+  </head>
+  <body
+    class="w-full flex flex-col mx-auto max-w-screen-md min-h-dvh justify-between dark:bg-neutral-800 dark:text-neutral-300 transition-colors duration-300"
+  >
+    <div>
+      <Header />
+      <main class="w-full max-w-screen-md mx-auto my-4 px-4">
+        <h1 class="text-2xl font-bold mb-8">
+          分类：<span>{category}</span>
+          <span class="text-sm font-normal text-gray-500 dark:text-neutral-400 ml-2">
+            {posts.length} 篇
+          </span>
+        </h1>
+        <div class="flex flex-col gap-4">
+          {posts.map((post) => <PostListItem post={post} />)}
+        </div>
+      </main>
+    </div>
+    <Footer />
+  </body>
+</html>
