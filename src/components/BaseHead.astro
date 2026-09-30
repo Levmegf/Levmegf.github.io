@@ -4,11 +4,11 @@ import '../styles/global.css'
 import '@fontsource-variable/reddit-mono'
 // 只给拉丁子集做 preload（中文由系统字体兜底，不下载 webfont）
 import latinFont from '@fontsource-variable/reddit-mono/files/reddit-mono-latin-wght-normal.woff2'
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_AUTHOR, SITE_GITHUB } from '../consts'
+import { SITE_TITLE, SITE_AUTHOR, SITE_GITHUB } from '../consts'
 
 interface Props {
   title: string
-  description: string
+  description?: string
   image?: string
   type?: 'website' | 'article'
   publishedTime?: string
@@ -31,16 +31,15 @@ const ogImage = new URL(image, Astro.site)
 const siteName = SITE_TITLE
 
 // 标题统一在这里补站点名，各页面只传自己的名字即可。
-// 首页本身就叫站点名，改用 slogan，避免出现「Levmegf · Levmegf」。
-const pageTitle =
-  title === SITE_TITLE ? `${SITE_TITLE} · ${SITE_DESCRIPTION}` : `${title} · ${SITE_TITLE}`
+// 首页本身就是站点名，不再重复拼一次。
+const pageTitle = title === SITE_TITLE ? SITE_TITLE : `${title} · ${SITE_TITLE}`
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: siteName,
   url: Astro.site?.href,
-  description: SITE_DESCRIPTION,
+  ...(description ? { description } : {}),
   inLanguage: 'zh-CN',
   author: { '@type': 'Person', name: SITE_AUTHOR, url: SITE_GITHUB },
 }
@@ -63,7 +62,7 @@ const jsonLd = {
 <!-- Primary Meta Tags -->
 <title>{pageTitle}</title>
 <meta name="title" content={pageTitle} />
-<meta name="description" content={description} />
+{description && <meta name="description" content={description} />}
 <meta name="author" content={SITE_AUTHOR} />
 <meta
   name="robots"
@@ -76,7 +75,7 @@ const jsonLd = {
 <meta property="og:locale" content="zh_CN" />
 <meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={pageTitle} />
-<meta property="og:description" content={description} />
+{description && <meta property="og:description" content={description} />}
 <meta property="og:image" content={ogImage} />
 <!-- 分享图只有两个来源：public/og-default.jpg 和文章页按 1200×630 裁的 JPEG，
      尺寸固定，写死可以让平台提前占位，预览卡渲染更稳。 -->
@@ -97,7 +96,7 @@ const jsonLd = {
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={pageTitle} />
-<meta name="twitter:description" content={description} />
+{description && <meta name="twitter:description" content={description} />}
 <meta name="twitter:image" content={ogImage} />
 
 <!-- RSS -->

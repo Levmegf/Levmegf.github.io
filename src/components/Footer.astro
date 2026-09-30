@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro'
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_AUTHOR, SITE_START_YEAR, SITE_GITHUB } from '../consts'
+import { SITE_TITLE, SITE_AUTHOR, SITE_START_YEAR, SITE_GITHUB } from '../consts'
 
 const year = new Date().getFullYear()
 const since = year > SITE_START_YEAR ? `${SITE_START_YEAR}–${year}` : `${year}`
@@ -9,7 +9,6 @@ const since = year > SITE_START_YEAR ? `${SITE_START_YEAR}–${year}` : `${year}
 <footer class="mt-20 md:mt-36 mx-4">
   <div class="border-b pb-8 mb-5">
     <p class="text-lg font-bold">{SITE_TITLE}</p>
-    <p class="text-sm">{SITE_DESCRIPTION}</p>
     <div class="flex gap-3 mt-3">
       <a href={SITE_GITHUB} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
         <Icon

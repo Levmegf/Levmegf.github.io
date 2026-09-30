@@ -1,10 +1,10 @@
 // 站点级全局数据，任何组件都可以 import 使用。
 
-export const SITE_TITLE = 'Levmegf'
-export const SITE_DESCRIPTION = '做生活的高手'
-export const SITE_AUTHOR = 'Levmegf'
+export const SITE_TITLE = '不见而信'
+export const SITE_AUTHOR = '不见而信'
 // 页脚版权起始年份
 export const SITE_START_YEAR = 2022
+// 以下两项是 GitHub 账号与仓库，跟站点显示名无关，保持 Levmegf
 export const SITE_GITHUB = 'https://github.com/Levmegf'
 
 // Giscus 评论：基于 GitHub Discussions，零后端。

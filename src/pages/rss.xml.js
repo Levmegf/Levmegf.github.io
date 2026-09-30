@@ -1,7 +1,7 @@
 import rss from '@astrojs/rss'
 import { getCollection } from 'astro:content'
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts'
+import { SITE_TITLE } from '../consts'
 
 // 正文里的链接与图片是 /_astro/xxx.webp、/blog/xxx/ 这类站内绝对路径。
 // RSS 阅读器拿到的是一份脱离站点的文档，这些路径会失效，得换成完整 URL。
@@ -46,7 +46,8 @@ export async function GET(context) {
 
   return rss({
     title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
+    // 站点去掉了副标题，频道描述留空；rss() 要求这个字段存在。
+    description: '',
     site: context.site,
     items,
   })
