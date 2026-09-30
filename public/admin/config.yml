@@ -16,6 +16,13 @@ backend:
 media_folder: public/images/uploads
 public_folder: /images/uploads
 
+# 顶层 slug 配置：encoding 决定文件名如何清洗。
+# unicode 保留中文，Astro 才能用中文文件名作为文章 slug。
+# 注意：这是顶层选项，不能写在 collection 里（collection 的 slug 只接受字符串模板）。
+slug:
+  encoding: unicode
+  clean_accents: false
+
 collections:
   - name: blog
     label: 文章
@@ -24,11 +31,6 @@ collections:
     create: true
     extension: md
     format: frontmatter
-    # 关键：默认 slug 会把中文标题转成空文件名。
-    # encoding: unicode 让文件名保留中文，Astro 才能用它作为文章 slug。
-    slug:
-      encoding: unicode
-      clean_accents: false
     fields:
       - label: 标题
         name: title

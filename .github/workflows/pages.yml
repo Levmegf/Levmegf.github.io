@@ -1,5 +1,7 @@
 name: Pages
 
+# 构建 Astro 站点并发布到 GitHub Pages。
+# Astro 的产物目录是 dist/（Hexo 用的是 public/）。
 on:
   push:
     branches:
@@ -30,10 +32,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules
-          # 没有 package-lock.json，用 package.json 做缓存键
-          key: ${{ runner.os }}-node-${{ hashFiles('package.json') }}
+          key: ${{ runner.os }}-astro-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-astro-
 
       - name: Install dependencies
         run: npm install
@@ -44,7 +45,6 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Astro 的输出目录是 dist（Hexo 时代是 public）
           path: ./dist
 
   deploy:
