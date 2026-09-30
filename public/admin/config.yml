@@ -12,8 +12,12 @@ backend:
   branch: master
   # 注意：Turbo 后端会忽略 repo（以 Turbo 站点里绑定的仓库为准），故此处不写
 
-# 图片上传到 public/images/uploads，Astro 会把 public/ 原样拷进 dist/
-media_folder: public/images/uploads
+# 图片上传到 src/assets/uploads（而不是 public/），构建期才会被转成 WebP、
+# 生成多尺寸并补上宽高，避免布局抖动。
+# public_folder 写成 /images/uploads：Markdown 里拿到的是绝对路径，后台媒体库
+# 和图片预览也能正常显示（uploads.mjs 会把原图额外提供到这个路径）。
+# 构建时 uploads.mjs 的 remark 插件再把绝对路径改写成相对路径，走 Astro 优化管线。
+media_folder: src/assets/uploads
 public_folder: /images/uploads
 
 # 顶层 slug 配置：encoding 决定文件名如何清洗。

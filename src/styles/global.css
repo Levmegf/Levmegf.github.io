@@ -1,9 +1,10 @@
 html {
-  /* Reddit Mono 是主题的等宽字体；后面挂上中文回退，
-     否则中文缺字时会掉到浏览器默认字体，字形突变很扎眼 */
-  font-family: 'Reddit Mono', ui-monospace, SFMono-Regular, Menlo, monospace,
-    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC',
-    sans-serif;
+  /* Reddit Mono Variable 由 @fontsource 自托管（只含拉丁字形）；
+     后面挂上中文回退，否则中文缺字时会掉到浏览器默认字体，字形突变很扎眼。
+     中文不引入 webfont——体积太大，系统字体更划算。 */
+  font-family: 'Reddit Mono Variable', ui-monospace, SFMono-Regular, Menlo,
+    monospace, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Noto Sans CJK SC', sans-serif;
   width: 100%;
 }
 
@@ -93,7 +94,7 @@ img {
 }
 
 .article-body code {
-  font-family: 'Reddit Mono', ui-monospace, monospace;
+  font-family: 'Reddit Mono Variable', ui-monospace, monospace;
   font-size: 90%;
 }
 

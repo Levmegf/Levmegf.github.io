@@ -10,11 +10,13 @@
 
 | 用途 | 方案 |
 | --- | --- |
-| 静态站点框架 | Astro 4 |
+| 静态站点框架 | Astro 4（全静态预渲染） |
 | 样式 | TailwindCSS 3 |
 | 内容 | Astro 内容集合（Markdown） |
+| 图片 | sharp，构建期转 WebP / 生成多尺寸 srcset |
+| 字体 | @fontsource 自托管（Reddit Mono Variable） |
 | 后台 | Decap CMS（Turbo 托管认证） |
-| 评论 | Giscus（GitHub Discussions） |
+| 评论 | Giscus（GitHub Discussions，滚动到附近才加载） |
 | 搜索 | 构建期生成 JSON 索引 + 前端本地检索 |
 | 部署 | GitHub Actions → GitHub Pages |
 
@@ -27,16 +29,20 @@
 │   └── astro-check.yml     # 只在 astro 分支跑构建校验，不部署
 ├── public/
 │   ├── admin/              # Decap CMS 后台（/admin/）
-│   ├── images/uploads/     # 后台上传的图片
+│   ├── og-default.jpg      # 默认社交分享图（1200×630）
+│   ├── robots.txt
 │   └── 2022/ 2023/ ...     # Hexo 时代旧链接的跳转页
 ├── src/
+│   ├── assets/uploads/     # 后台上传的图片（构建期被优化）
 │   ├── components/         # 页头、页脚、图标、目录、评论等
 │   ├── content/blog/       # 文章（Markdown）
+│   ├── content/config.ts   # 内容集合 schema（封面图路径改写在这里）
 │   ├── layouts/BlogPost.astro
 │   ├── pages/              # 路由：首页 / 文章 / 归档 / 分类 / 标签 / 搜索 / 关于
 │   ├── consts.ts           # 站点信息与 Giscus 配置
 │   └── styles/global.css
-└── astro.config.mjs
+├── astro.config.mjs
+└── uploads.mjs             # Decap 图片路径改写 + 原图提供给后台
 ```
 
 ## 本地开发
@@ -66,7 +72,7 @@ npm run check      # Astro + TypeScript 类型检查
 | 更新日期 | 否 | 有则显示「更新于」 |
 | 分类 | 否 | 单个，出现在「分类」页 |
 | 标签 | 否 | 多个，出现在「标签」页 |
-| 封面图 | 否 | 上传到 `public/images/uploads/` |
+| 封面图 | 否 | 存到 `src/assets/uploads/`，构建期自动优化 |
 | 正文 | 是 | Markdown |
 
 > 后台的文件名沿用中文标题（`slug.encoding: unicode`）。
@@ -90,6 +96,70 @@ tags:
 ```
 
 改完 `git push` 到 `master`，CI 会自动部署。
+
+## 图片与媒体资源
+
+所有图片存在 `src/assets/uploads/`，构建期由 sharp 转成 WebP、按需生成多档尺寸、
+补上 `width`/`height` 与 `loading`。
+
+**引用路径有两种写法，效果完全一样：**
+
+```markdown
+![说明文字](../../assets/uploads/我的图.jpg)   <!-- 相对路径 -->
+![说明文字](/images/uploads/我的图.jpg)         <!-- 绝对路径 -->
+```
+
+封面图写在 frontmatter 里：
+
+```yaml
+heroImage: /images/uploads/封面.jpg
+```
+
+封面会输出 640 / 1020 / 1536 三档 `srcset`，并作为首屏 LCP 元素走 `eager` +
+`fetchpriority="high"`；正文里的图片自动 `lazy`。`src/assets/uploads/` 之外的图片
+（比如 `public/` 里的）不会被处理，原样输出。
+
+### 为什么绝对路径也能被优化
+
+Astro 只优化相对路径——绝对路径会被当成 `public/` 里的静态文件原样拷贝。但 Decap
+的 `public_folder` 只能是绝对路径（写成相对路径后台媒体库的缩略图就会空白），
+两边诉求正好冲突。`uploads.mjs` 负责抹平这个差异：
+
+| 环节 | 做法 |
+| --- | --- |
+| 正文图片 | `remarkUploads` 插件在解析 Markdown 时把 `/images/uploads/x.jpg` 改写成相对路径 |
+| 封面图 | `src/content/config.ts` 里用 `z.preprocess` 做同样的改写，再交给 `image()` |
+| 后台读图 | 构建后把原图复制到 `dist/images/uploads/`；`astro dev` 时用中间件提供同一路径 |
+
+代价是原图在产物里多存一份，但它只被后台读取，访客拿到的仍是优化后的 WebP。
+
+> `src/content/config.ts` 里的 `UPLOADS_PREFIX` / `UPLOADS_RELATIVE` 与
+> `uploads.mjs` 里的 `PUBLIC_PREFIX` 是一对，改一个就要改另一个。
+
+## 字体
+
+Reddit Mono 通过 `@fontsource-variable/reddit-mono` 自托管，woff2 随构建产出到
+`_astro/`，并对拉丁子集做 `preload`——不再依赖 `fonts.googleapis.com`。
+
+中文不引入 webfont（中文子集动辄几 MB，不划算），靠 `global.css` 里的系统字体链兜底：
+`PingFang SC` → `Hiragino Sans GB` → `Microsoft YaHei` → `Noto Sans CJK SC`。
+
+## 渲染策略
+
+- **全静态预渲染**：所有页面构建期生成 HTML，没有服务端运行时。
+- **链接预取**：站内链接进入视口就 `prefetch`（`astro.config.mjs` 的 `prefetch`），点击近乎瞬时。
+- **评论延迟加载**：Giscus 是页面里唯一的重型第三方脚本，用 `IntersectionObserver`
+  滚到附近才注入，首屏完全不加载；主题切换时会同步 iframe 内的深浅色。
+- **小体积 CSS 内联**：`build.inlineStylesheets: 'auto'`，省掉一次阻塞渲染的请求。
+
+## SEO
+
+- `public/robots.txt` 放行全站、屏蔽 `/admin/`，并声明 sitemap。
+- `@astrojs/sitemap` 生成 `sitemap-index.xml`，同样排除 `/admin`。
+- `BaseHead.astro` 输出 canonical、Open Graph、Twitter Card、`theme-color` 与
+  `WebSite` 结构化数据；文章页额外输出 `BlogPosting` 结构化数据。
+- 分享图：文章有封面时按 1200×630 裁一张 JPEG 当 `og:image`，没有封面则回退到
+  `public/og-default.jpg`。
 
 ## 部署
 

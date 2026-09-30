@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content'
+import { Image } from 'astro:assets'
 import FormattedDate from './FormattedDate.astro'
 import TagLink from './TagLink.astro'
 
@@ -29,9 +30,12 @@ const href = `/blog/${post.slug}/`
   {
     post.data.heroImage && (
       <a href={href} class="shrink-0">
-        <img
+        <Image
           src={post.data.heroImage}
           alt=""
+          widths={[160, 320]}
+          sizes="160px"
+          quality={78}
           class="w-40 h-24 object-cover border border-gray-200 dark:border-neutral-700"
         />
       </a>

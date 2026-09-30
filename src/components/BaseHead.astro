@@ -1,15 +1,44 @@
 ---
 import '../styles/global.css'
+// 自托管字体：woff2 随构建一起产出到 _astro/，不再依赖 fonts.googleapis.com
+import '@fontsource-variable/reddit-mono'
+// 只给拉丁子集做 preload（中文由系统字体兜底，不下载 webfont）
+import latinFont from '@fontsource-variable/reddit-mono/files/reddit-mono-latin-wght-normal.woff2'
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_AUTHOR, SITE_GITHUB } from '../consts'
 
 interface Props {
   title: string
   description: string
   image?: string
+  type?: 'website' | 'article'
+  publishedTime?: string
+  modifiedTime?: string
+  noindex?: boolean
 }
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site)
+const {
+  title,
+  description,
+  image = '/og-default.jpg',
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  noindex = false,
+} = Astro.props
 
-const { title, description, image } = Astro.props
+const canonicalURL = new URL(Astro.url.pathname, Astro.site)
+const ogImage = new URL(image, Astro.site)
+const siteName = SITE_TITLE
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteName,
+  url: Astro.site?.href,
+  description: SITE_DESCRIPTION,
+  inLanguage: 'zh-CN',
+  author: { '@type': 'Person', name: SITE_AUTHOR, url: SITE_GITHUB },
+}
 ---
 
 <!-- Global Metadata -->
@@ -17,13 +46,11 @@ const { title, description, image } = Astro.props
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <meta name="generator" content={Astro.generator} />
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#262626" media="(prefers-color-scheme: dark)" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  href="https://fonts.googleapis.com/css2?family=Reddit+Mono:wght@200..900&display=swap"
-  rel="stylesheet"
-/>
+<!-- 字体：自托管 + 预加载，避免 FOIT 与第三方域名往返 -->
+<link rel="preload" as="font" type="font/woff2" href={latinFont} crossorigin="anonymous" />
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
@@ -32,13 +59,37 @@ const { title, description, image } = Astro.props
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
+<meta name="author" content={SITE_AUTHOR} />
+<meta
+  name="robots"
+  content={noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large,max-snippet:-1'}
+/>
 
-<!-- Open Graph / Facebook -->
-<meta property="og:type" content="website" />
-<meta property="og:url" content={Astro.url} />
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content="zh_CN" />
+<meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-{image && <meta property="og:image" content={new URL(image, Astro.url)} />}
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={title} />
+{
+  type === 'article' && publishedTime && (
+    <meta property="article:published_time" content={publishedTime} />
+  )
+}
+{
+  type === 'article' && modifiedTime && (
+    <meta property="article:modified_time" content={modifiedTime} />
+  )
+}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
 
 <!-- RSS -->
 <link
@@ -47,6 +98,8 @@ const { title, description, image } = Astro.props
   title={title}
   href={new URL('rss.xml', Astro.site)}
 />
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
 <script is:inline>
   const theme = (() => {

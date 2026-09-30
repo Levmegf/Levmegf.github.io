@@ -1,5 +1,6 @@
 ---
-import type { MarkdownHeading } from 'astro'
+import type { ImageMetadata, MarkdownHeading } from 'astro'
+import { getImage, Image } from 'astro:assets'
 import BaseHead from '../components/BaseHead.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
@@ -8,13 +9,14 @@ import TagLink from '../components/TagLink.astro'
 import CategoryLink from '../components/CategoryLink.astro'
 import TableOfContents from '../components/TableOfContents.astro'
 import Giscus from '../components/Giscus.astro'
+import { SITE_AUTHOR, SITE_GITHUB, SITE_TITLE } from '../consts'
 
 interface Props {
   title: string
   description: string
   pubDate: Date
   updatedDate?: Date
-  heroImage?: string
+  heroImage?: ImageMetadata
   tags?: string[]
   category?: string
   headings?: MarkdownHeading[]
@@ -36,11 +38,55 @@ const {
   showToc = true,
   showComments = true,
 } = Astro.props
+
+const site = Astro.site ?? Astro.url
+
+// 分享图单独出一张 1200×630 的 JPEG：社交平台只认这个比例，
+// 直接拿正文封面（比例各异）会被裁得很难看。用 JPEG 而非 PNG，
+// 同样的画面体积能小一个数量级。
+const ogImage = heroImage
+  ? new URL(
+      (
+        await getImage({
+          src: heroImage,
+          width: 1200,
+          height: 630,
+          format: 'jpeg',
+          quality: 82,
+        })
+      ).src,
+      site
+    ).href
+  : undefined
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description,
+  image: ogImage ? [ogImage] : undefined,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  inLanguage: 'zh-CN',
+  author: { '@type': 'Person', name: SITE_AUTHOR, url: SITE_GITHUB },
+  publisher: { '@type': 'Organization', name: SITE_TITLE },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': new URL(Astro.url.pathname, site).href },
+  articleSection: category,
+  keywords: tags,
+}
 ---
 
 <html lang="zh-CN" class="dark">
   <head>
-    <BaseHead title={title} description={description} image={heroImage} />
+    <BaseHead
+      title={title}
+      description={description}
+      image={ogImage}
+      type="article"
+      publishedTime={pubDate.toISOString()}
+      modifiedTime={(updatedDate ?? pubDate).toISOString()}
+    />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body
     class="w-full max-w-screen-md mx-auto my-4 dark:bg-neutral-800 dark:text-neutral-300 transition-colors duration-300"
@@ -67,7 +113,20 @@ const {
           {tags?.map((tag) => <TagLink tag={tag} />)}
         </div>
 
-        {heroImage && <img width={1020} height={510} src={heroImage} alt="" />}
+        {
+          heroImage && (
+            <Image
+              src={heroImage}
+              alt={title}
+              widths={[640, 1020, 1536]}
+              sizes="(max-width: 768px) 100vw, 768px"
+              quality={82}
+              loading="eager"
+              fetchpriority="high"
+              class="w-full"
+            />
+          )
+        }
 
         {showToc && <TableOfContents headings={headings} />}
 

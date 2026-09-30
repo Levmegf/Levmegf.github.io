@@ -9,23 +9,77 @@ const enabled = Boolean(GISCUS.repoId && GISCUS.categoryId)
   enabled && (
     <section class="mt-16 pt-8 border-t border-gray-200 dark:border-neutral-700">
       <h2 class="font-bold text-lg mb-6">评论</h2>
-      <script
-        is:inline
-        src="https://giscus.app/client.js"
+      <div
+        id="giscus-host"
         data-repo={GISCUS.repo}
         data-repo-id={GISCUS.repoId}
         data-category={GISCUS.category}
         data-category-id={GISCUS.categoryId}
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="preferred_color_scheme"
-        data-lang="zh-CN"
-        crossorigin="anonymous"
-        async
       />
+      <noscript>
+        <a href={`https://github.com/${GISCUS.repo}/discussions`}>
+          在 GitHub Discussions 中查看评论
+        </a>
+      </noscript>
     </section>
   )
 }
+
+<script>
+  const host = document.getElementById('giscus-host')
+
+  if (host) {
+    const currentTheme = () =>
+      document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+
+    const load = () => {
+      const script = document.createElement('script')
+      script.src = 'https://giscus.app/client.js'
+      script.async = true
+      script.crossOrigin = 'anonymous'
+
+      const config: Record<string, string> = {
+        repo: host.dataset.repo ?? '',
+        'repo-id': host.dataset.repoId ?? '',
+        category: host.dataset.category ?? '',
+        'category-id': host.dataset.categoryId ?? '',
+        mapping: 'pathname',
+        strict: '0',
+        'reactions-enabled': '1',
+        'emit-metadata': '0',
+        'input-position': 'bottom',
+        theme: currentTheme(),
+        lang: 'zh-CN',
+      }
+      for (const [key, value] of Object.entries(config)) {
+        script.setAttribute(`data-${key}`, value)
+      }
+      host.appendChild(script)
+    }
+
+    // 评论在页面最底部，且是页面里唯一的重型第三方脚本：
+    // 滚到附近再注入，首屏完全不碰它
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        observer.disconnect()
+        load()
+      },
+      { rootMargin: '600px 0px' }
+    )
+    observer.observe(host)
+
+    // 站点切换深浅色时，同步 iframe 内部的主题
+    new MutationObserver(() => {
+      document
+        .querySelector<HTMLIFrameElement>('iframe.giscus-frame')
+        ?.contentWindow?.postMessage(
+          { giscus: { setConfig: { theme: currentTheme() } } },
+          'https://giscus.app'
+        )
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    })
+  }
+</script>
