@@ -1,0 +1,36 @@
+---
+import BaseHead from '../../components/BaseHead.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import PostListItem from '../../components/PostListItem.astro'
+import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts'
+import { getCollection } from 'astro:content'
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+)
+---
+
+<!doctype html>
+<html lang="zh-CN" class="min-h-dvh">
+  <head>
+    <BaseHead title={`文章 · ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+  </head>
+  <body
+    class="w-full max-w-screen-md mx-auto my-4 dark:bg-neutral-800 dark:text-neutral-300 transition-colors duration-300"
+  >
+    <Header />
+    <main
+      class="w-full max-w-screen-md mx-auto my-4 px-4 flex flex-col gap-6 justify-center"
+    >
+      <h1 class="text-2xl font-bold">文章</h1>
+      {posts.map((post) => <PostListItem post={post} />)}
+      {
+        posts.length === 0 && (
+          <p class="text-gray-500 dark:text-neutral-400">还没有文章。</p>
+        )
+      }
+    </main>
+    <Footer />
+  </body>
+</html>

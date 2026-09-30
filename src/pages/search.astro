@@ -1,0 +1,102 @@
+---
+import BaseHead from '../components/BaseHead.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts'
+---
+
+<!doctype html>
+<html lang="zh-CN" class="min-h-dvh">
+  <head>
+    <BaseHead title={`搜索 · ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+  </head>
+  <body
+    class="w-full flex flex-col mx-auto max-w-screen-md min-h-dvh justify-between dark:bg-neutral-800 dark:text-neutral-300 transition-colors duration-300"
+  >
+    <div>
+      <Header />
+      <main class="w-full max-w-screen-md mx-auto my-4 px-4">
+        <h1 class="text-2xl font-bold mb-6">搜索</h1>
+        <input
+          id="q"
+          type="search"
+          autocomplete="off"
+          placeholder="输入关键词…"
+          class="w-full px-4 py-3 text-sm rounded-lg border border-gray-300 bg-white dark:bg-neutral-700 dark:border-neutral-600 outline-none focus:border-gray-500 dark:focus:border-neutral-400 transition-colors"
+        />
+        <p id="hint" class="text-xs text-gray-500 dark:text-neutral-400 mt-3"></p>
+        <ul id="results" class="flex flex-col gap-4 mt-6"></ul>
+      </main>
+    </div>
+    <Footer />
+  </body>
+</html>
+
+<script>
+  interface IndexedPost {
+    title: string
+    description: string
+    slug: string
+    category: string
+    tags: string[]
+    date: string
+    body: string
+  }
+
+  const input = document.getElementById('q') as HTMLInputElement | null
+  const results = document.getElementById('results')
+  const hint = document.getElementById('hint')
+
+  let index: IndexedPost[] = []
+
+  const summary = (n?: number) =>
+    n === undefined ? `共 ${index.length} 篇文章` : `找到 ${n} 篇`
+
+  function render(items: IndexedPost[]) {
+    if (!results) return
+    results.replaceChildren()
+    for (const post of items) {
+      const li = document.createElement('li')
+      li.className = 'border-b pb-4'
+
+      const link = document.createElement('a')
+      link.href = `/blog/${post.slug}/`
+      link.className = 'font-bold text-lg hover:underline'
+      link.textContent = post.title
+
+      const desc = document.createElement('p')
+      desc.className = 'text-sm text-gray-500 dark:text-neutral-400 mt-1'
+      desc.textContent = post.description
+
+      li.append(link, desc)
+      results.append(li)
+    }
+  }
+
+  fetch('/search-index.json')
+    .then((res) => res.json() as Promise<IndexedPost[]>)
+    .then((data) => {
+      index = data
+      if (hint) hint.textContent = summary()
+    })
+    .catch(() => {
+      if (hint) hint.textContent = '索引加载失败，请刷新重试。'
+    })
+
+  input?.addEventListener('input', () => {
+    const query = input.value.trim().toLowerCase()
+    if (!query) {
+      render([])
+      if (hint) hint.textContent = summary()
+      return
+    }
+    const hits = index.filter((post) =>
+      [post.title, post.description, post.category, post.tags.join(' '), post.body]
+        .join(' ')
+        .toLowerCase()
+        .includes(query)
+    )
+    render(hits)
+    if (hint) hint.textContent = summary(hits.length)
+  })
+</script>

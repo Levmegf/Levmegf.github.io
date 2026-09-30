@@ -1,34 +1,29 @@
 {
   "name": "levmegf-blog",
+  "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "Levmegf 的个人博客 —— Hexo + Butterfly + Decap CMS",
   "scripts": {
-    "build": "hexo generate",
-    "clean": "hexo clean",
-    "server": "hexo server",
-    "new": "hexo new post",
-    "draft": "hexo new draft"
-  },
-  "engines": {
-    "node": ">=20.19.0"
-  },
-  "hexo": {
-    "version": "8.1.2"
+    "dev": "astro dev --host",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro"
   },
   "dependencies": {
-    "hexo": "^8.1.2",
-    "hexo-generator-archive": "^2.0.0",
-    "hexo-generator-category": "^2.0.0",
-    "hexo-generator-feed": "^4.0.0",
-    "hexo-generator-index": "^4.0.0",
-    "hexo-generator-searchdb": "^1.5.0",
-    "hexo-generator-sitemap": "^3.0.1",
-    "hexo-generator-tag": "^2.0.0",
-    "hexo-renderer-marked": "^6.0.0",
-    "hexo-renderer-pug": "^3.0.0",
-    "hexo-renderer-stylus": "^3.0.1",
-    "hexo-server": "^3.0.0",
-    "hexo-theme-butterfly": "^5.7.0"
+    "@astrojs/mdx": "^3.1.2",
+    "@astrojs/rss": "^4.0.7",
+    "@astrojs/sitemap": "^3.1.6",
+    "@astrojs/tailwind": "^5.1.0",
+    "astro": "^4.11.5",
+    "astro-navbar": "^2.3.2",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.8.1"
   }
 }
