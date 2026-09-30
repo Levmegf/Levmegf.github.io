@@ -30,6 +30,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site)
 const ogImage = new URL(image, Astro.site)
 const siteName = SITE_TITLE
 
+// 标题统一在这里补站点名，各页面只传自己的名字即可。
+// 首页本身就叫站点名，改用 slogan，避免出现「Levmegf · Levmegf」。
+const pageTitle =
+  title === SITE_TITLE ? `${SITE_TITLE} · ${SITE_DESCRIPTION}` : `${title} · ${SITE_TITLE}`
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -56,8 +61,8 @@ const jsonLd = {
 <link rel="canonical" href={canonicalURL} />
 
 <!-- Primary Meta Tags -->
-<title>{title}</title>
-<meta name="title" content={title} />
+<title>{pageTitle}</title>
+<meta name="title" content={pageTitle} />
 <meta name="description" content={description} />
 <meta name="author" content={SITE_AUTHOR} />
 <meta
@@ -70,9 +75,13 @@ const jsonLd = {
 <meta property="og:site_name" content={siteName} />
 <meta property="og:locale" content="zh_CN" />
 <meta property="og:url" content={canonicalURL} />
-<meta property="og:title" content={title} />
+<meta property="og:title" content={pageTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={ogImage} />
+<!-- 分享图只有两个来源：public/og-default.jpg 和文章页按 1200×630 裁的 JPEG，
+     尺寸固定，写死可以让平台提前占位，预览卡渲染更稳。 -->
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content={title} />
 {
   type === 'article' && publishedTime && (
@@ -87,7 +96,7 @@ const jsonLd = {
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content={title} />
+<meta name="twitter:title" content={pageTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
 
@@ -95,27 +104,26 @@ const jsonLd = {
 <link
   rel="alternate"
   type="application/rss+xml"
-  title={title}
+  title={pageTitle}
   href={new URL('rss.xml', Astro.site)}
 />
 
 <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
 <script is:inline>
+  // 在样式生效前定好主题，避免闪一下浅色再切深色（FOUC）。
+  // 只在用户手动切换时写 localStorage（见 ThemeIcon），这里不写。
   const theme = (() => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme')
+    try {
+      const saved = localStorage.getItem('theme')
+      if (saved) return saved
+    } catch {
+      // Safari 隐私模式等场景 localStorage 会抛错，回退到系统偏好
     }
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark'
-    }
-    return 'light'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
   })()
 
-  if (theme === 'light') {
-    document.documentElement.classList.remove('dark')
-  } else {
-    document.documentElement.classList.add('dark')
-  }
-  window.localStorage.setItem('theme', theme)
+  document.documentElement.classList.toggle('dark', theme === 'dark')
 </script>

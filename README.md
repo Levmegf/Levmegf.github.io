@@ -158,8 +158,11 @@ Reddit Mono 通过 `@fontsource-variable/reddit-mono` 自托管，woff2 随构�
 - `@astrojs/sitemap` 生成 `sitemap-index.xml`，同样排除 `/admin`。
 - `BaseHead.astro` 输出 canonical、Open Graph、Twitter Card、`theme-color` 与
   `WebSite` 结构化数据；文章页额外输出 `BlogPosting` 结构化数据。
+  标题的品牌后缀也在这里统一拼，各页面只传自己的名字。
 - 分享图：文章有封面时按 1200×630 裁一张 JPEG 当 `og:image`，没有封面则回退到
   `public/og-default.jpg`。
+- RSS：`/rss.xml` 按发布日期倒序，并输出**全文**（`content:encoded`）。
+  正文里的图片与链接会被改写成完整 URL，阅读器里能直接读完，不用跳回站点。
 
 ## 部署
 

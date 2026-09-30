@@ -4,7 +4,7 @@ import BaseHead from '../../components/BaseHead.astro'
 import Header from '../../components/Header.astro'
 import Footer from '../../components/Footer.astro'
 import Icon from '../../components/Icon.astro'
-import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts'
+import { SITE_DESCRIPTION } from '../../consts'
 
 const posts = await getCollection('blog')
 
@@ -20,7 +20,7 @@ const tags = [...counts.entries()].sort((a, b) => b[1] - a[1])
 <!doctype html>
 <html lang="zh-CN" class="min-h-dvh">
   <head>
-    <BaseHead title={`标签 · ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+    <BaseHead title="标签" description={SITE_DESCRIPTION} />
   </head>
   <body
     class="w-full flex flex-col mx-auto max-w-screen-md min-h-dvh justify-between dark:bg-neutral-800 dark:text-neutral-300 transition-colors duration-300"

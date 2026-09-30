@@ -105,12 +105,12 @@ const props = Astro.props
   const buttons = document.querySelectorAll('.switch-theme-button')
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
-      if (localStorage.theme === 'dark') {
-        localStorage.theme = 'light'
-        document.documentElement.classList.remove('dark')
-      } else {
-        localStorage.theme = 'dark'
-        document.documentElement.classList.add('dark')
+      const dark = !document.documentElement.classList.contains('dark')
+      document.documentElement.classList.toggle('dark', dark)
+      try {
+        localStorage.theme = dark ? 'dark' : 'light'
+      } catch {
+        // Safari 隐私模式等场景写不进去，主题只在本次会话生效
       }
     })
   })
